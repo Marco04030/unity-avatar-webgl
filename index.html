@@ -118,6 +118,15 @@
           fullscreenButton.onclick = () => {
             unityInstance.SetFullscreen(1);
           };
+        window.addEventListener('message', function (event) {
+            // event.data trae el texto que enviaste con webview.postMessage(...)
+            unityInstance.SendMessage(
+                'GameController',    // el nombre exacto de tu GameObject
+                'OnTextReceived',    // el método público en tu GameController.cs
+                event.data          // el string que mandaste desde React Native
+            );
+        });
+
         }).catch((message) => {
           alert(message);
         });

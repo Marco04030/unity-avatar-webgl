@@ -117,6 +117,13 @@
           loadingBar.style.display = "none";
           fullscreenButton.onclick = () => {
             unityInstance.SetFullscreen(1);
+          function handleRNMessage(e) {
+            const payload = e.data || e.message;
+            console.log('JS: recibiendo de RN:', payload);
+            unityInstance.SendMessage('GameController','OnTextReceived', payload);
+          }
+          window.addEventListener('message', handleRNMessage);
+          document.addEventListener('message', handleRNMessage);
           };
         window.addEventListener('message', function (event) {
             // event.data trae el texto que enviaste con webview.postMessage(...)

@@ -117,22 +117,31 @@
           loadingBar.style.display = "none";
           fullscreenButton.onclick = () => {
             unityInstance.SetFullscreen(1);
-          function handleRNMessage(e) {
-            const payload = e.data || e.message;
-            console.log('JS: recibiendo de RN:', payload);
-            unityInstance.SendMessage('GameController','OnTextReceived', payload);
-          }
-          window.addEventListener('message', handleRNMessage);
-          document.addEventListener('message', handleRNMessage);
           };
-        window.addEventListener('message', function (event) {
-            // event.data trae el texto que enviaste con webview.postMessage(...)
-            unityInstance.SendMessage(
-                'GameController',    // el nombre exacto de tu GameObject
-                'OnTextReceived',    // el método público en tu GameController.cs
-                event.data          // el string que mandaste desde React Native
-            );
-        });
+
+          // Configuración del sistema de mensajes
+          window.unityInstance = unityInstance; // Hacer accesible la instancia globalmente
+
+          function handleMessage(event) {
+            const data = event.data;
+            console.log('Unity recibiendo mensaje:', data);
+            
+            try {
+              // Si el mensaje es un objeto JSON, intentamos parsearlo
+              const payload = typeof data === 'string' ? data : JSON.stringify(data);
+              unityInstance.SendMessage('GameController', 'OnTextReceived', payload);
+            } catch (error) {
+              console.error('Error procesando mensaje:', error);
+            }
+          }
+
+          // Eliminar listeners anteriores si existen
+          window.removeEventListener('message', handleMessage);
+          document.removeEventListener('message', handleMessage);
+
+          // Agregar nuevos listeners
+          window.addEventListener('message', handleMessage);
+          document.addEventListener('message', handleMessage);
 
         }).catch((message) => {
           alert(message);
